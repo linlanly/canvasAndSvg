@@ -1,0 +1,54 @@
+<template>
+  <svg version="1.1" baseProfile="full" width="200" height="200" xmlns="http://www.w3.org/2000/svg">
+    <defs>
+      <linearGradient id="Gradient1">
+        <stop offset="5%" stop-color="white" />
+        <stop offset="95%" stop-color="blue" />
+      </linearGradient>
+      <linearGradient id="Gradient2" x1="0" x2="0" y1="0" y2="1">
+        <stop offset="5%" stop-color="red" />
+        <stop offset="95%" stop-color="orange" />
+      </linearGradient>
+      <pattern id="Pattern" x="0" y="0" width=".25" height=".25">
+        <rect x="0" y="0" width="50" height="50" fill="skyblue" />
+        <rect x="0" y="0" width="25" height="25" fill="url(#Gradient2)" />
+        <circle cx="25" cy="25" r="20" fill="url(#Gradient1)" fill-opacity=".5" />
+      </pattern>
+    </defs>
+    <rect fill="url(#Pattern)" stroke="black" x="0" y="0" width="200" height="200" />
+  </svg>
+  <svg version="1.1" baseProfile="full" width="200" height="300" xmlns="http://www.w3.org/2000/svg">
+    <rect fill="url(#Pattern)" stroke="black" x="0" y="0" width="200" height="300" />
+  </svg>
+  <svg version="1.1" baseProfile="full" width="200" height="300" xmlns="http://www.w3.org/2000/svg">
+    <defs>
+      <pattern id="Pattern1" width=".25" height=".25" patternContentUnits="objectBoundingBox">
+        <rect x="0" y="0" width=".25" height=".25" fill="skyblue" />
+        <rect x="0" y="0" width=".125" height=".125" fill="url(#Gradient2)" />
+        <circle cx=".125" cy=".125" r=".1" fill="url(#Gradient1)" fill-opacity="0.5" />
+      </pattern>
+    </defs>
+    <rect fill="url(#Pattern1)" stroke="black" x="0" y="0" width="200" height="300" />
+  </svg>
+  <svg version="1.1" baseProfile="full" width="200" height="300" xmlns="http://www.w3.org/2000/svg">
+    <defs>
+      <pattern id="Pattern2" x="10" y="10" width="50" height="50" patternUnits="userSpaceOnUse">
+        <rect x="0" y="0" width="50" height="50" fill="skyblue" />
+        <rect x="0" y="0" width="25" height="25" fill="url(#Gradient2)" />
+        <circle cx="25" cy="25" r="20" fill="url(#Gradient1)" fill-opacity="0.5" />
+      </pattern>
+    </defs>
+    <rect fill="url(#Pattern2)" stroke="black" x="0" y="0" width="200" height="300" />
+  </svg>
+  
+  <svg version="1.1" baseProfile="full" width="200" height="300" xmlns="http://www.w3.org/2000/svg">
+    <defs>
+      <pattern id="Pattern2" x="10" y="10" width="50" height="50" patternUnits="userSpaceOnUse">
+        <rect x="0" y="0" width="50" height="50" fill="skyblue" />
+        <rect x="0" y="0" width="25" height="25" fill="url(#Gradient2)" />
+        <circle cx="25" cy="25" r="20" fill="url(#Gradient1)" fill-opacity="0.5" />
+      </pattern>
+    </defs>
+    <rect fill="white" stroke="url(#Pattern2)" stroke-width="100" x="0" y="0" width="200" height="300" />
+  </svg>
+</template>

@@ -1,0 +1,25 @@
+<script lang="ts" setup>
+import { onMounted } from 'vue'
+function draw() {
+  const canvas = document.getElementById('tutorial')
+  const canvasDoc = canvas as HTMLCanvasElement
+  if (canvasDoc.getContext) {
+    const ctx = canvasDoc.getContext("2d")!
+
+    for (let i = 0; i < 3; i++) {
+      for(let j = 0; j < 3; j++) {
+        ctx.save()
+        ctx.fillStyle = `rgb(${51 * i}, ${255 - 51 * i}, 255)`
+        ctx.translate(10 + j * 50, 10 + i * 50)
+        ctx.fillRect(0, 0, 25, 25)
+        ctx.restore()
+      }
+    }
+  }
+}
+onMounted(() => {draw()})
+</script>
+
+<template>
+  <canvas id="tutorial" width="150" height="150"></canvas>
+</template>
