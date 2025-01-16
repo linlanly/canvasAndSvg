@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html>
+
 <head>
     <meta charset="UTF-8">
     <title></title>
@@ -8,16 +9,19 @@
             border: 1px solid #ddd;
             position: relative;
         }
+
         .flow-chart .module-list {
             width: 100%;
             display: flex;
             background: #F3F4F8;
         }
+
         .flow-chart .module-list .module-item {
             padding: 13px;
             text-align: center;
-            color: rgba(21,26,36,0.64);
+            color: rgba(21, 26, 36, 0.64);
         }
+
         .flow-chart .module-list .module-item:not(:first-child)::before {
             content: "";
             position: absolute;
@@ -27,10 +31,12 @@
             transform: translateX(-80px);
             background-color: #ddd;
         }
+
         .flow-chart .process-list {
             position: relative;
             font-size: 16px;
         }
+
         .flow-chart .process-list .btn-start,
         .flow-chart .process-list .btn-end,
         .flow-chart .process-list .step,
@@ -39,7 +45,9 @@
             width: 200px;
             padding: 12px 0;
             color: white;
+            box-sizing: border-box;
         }
+
         .flow-chart .process-list .btn-start,
         .flow-chart .process-list .btn-end {
             border-radius: 50px;
@@ -47,16 +55,19 @@
             color: #333;
             text-align: center;
         }
+
         .flow-chart .process-list .step {
             background-color: blue;
             border-radius: 8px;
             padding-left: 52px;
         }
+
         .flow-chart .process-list .judge {
             padding: 37px;
             clip-path: polygon(50% 0, 100% 50%, 50% 100%, 0 50%, 50% 0);
             background-color: green;
         }
+
         .flow-chart .process-list .line-item {
             position: absolute;
             border-style: solid;
@@ -64,11 +75,13 @@
             border-width: 0;
         }
     </style>
+    <script src="https://code.jquery.com/jquery-2.1.1.min.js"></script>
 </head>
+
 <body>
-<div id="form1">
-    <div id="processBox" class="flow-chart"></div>
-</div>
+    <div id="form1">
+        <div id="processBox" class="flow-chart"></div>
+    </div>
     <script>
         let processList = [
             {
@@ -80,7 +93,7 @@
                         line: 1,
                         type: 'btn-start',
                         id: 1,
-                        links: [{to: 2}],
+                        links: [{ to: 2 }],
                     },
                     {
                         name: '提交申请',
@@ -89,8 +102,8 @@
                         step: 1,
                         links: [
                             { to: 3 },
-                            { to: 4, content: "超过50% 打回材料", color: '#E57C7C' },
-                            { to: 5, content: "现实情况与 申报情况不符", color: '#E57C7C' }
+                            { to: 4, content: "超过50% 打回材料", color: '#E57C7C', type: 'dash' },
+                            { to: 5, content: "现实情况与 申报情况不符", color: '#E57C7C', type: 'dash' }
                         ],
                         id: 2
                     }
@@ -106,7 +119,7 @@
                         type: 'step',
                         step: 2,
                         id: 3,
-                        links: [{to: 4}],
+                        links: [{ to: 4 }],
                     },
                     {
                         name: '技术业务用房占总面积比例<=50%',
@@ -124,7 +137,7 @@
                         type: 'step',
                         step: 4,
                         id: 5,
-                        links: [{to: 6}],
+                        links: [{ to: 6 }],
                     },
                     {
                         name: '送第三方单位评审',
@@ -132,7 +145,7 @@
                         type: 'step',
                         step: 5,
                         id: 6,
-                        links: [{to: 10}],
+                        links: [{ to: 10 }],
                     },
                     {
                         name: '按程序进行项目审批',
@@ -140,7 +153,7 @@
                         type: 'step',
                         step: 7,
                         id: 7,
-                        links: [{to: 8}],
+                        links: [{ to: 8 }],
                     },
                     {
                         name: '办结归档',
@@ -160,7 +173,7 @@
                         type: 'step',
                         step: 3,
                         id: 9,
-                        links: [{to: 5}],
+                        links: [{ to: 5 }],
                     }
                 ]
             },
@@ -174,10 +187,11 @@
                         type: 'step',
                         step: 6,
                         id: 10,
-                        links: [{to: 7}],
+                        links: [{ to: 7 }],
                     }
                 ]
-            }], processBoxHeight = 0, smallSplace = 42, middleSplace = 56, largeSplace = 68
+            }]
+        let processBoxHeight = 0, smallSplace = 42, middleSplace = 56, largeSplace = 68
         function drawProcess() {
             $('#processBox').empty()
             let strModule = '<div class="module-list">', strProcess = `<div class="process-list" style="height: ${processBoxHeight + 20}px">`
@@ -186,20 +200,101 @@
                 item.list.forEach(citem => {
                     strProcess += `<div class="${citem.type}" style="left: ${citem.x}px;top: ${citem.y}px;"><span>${citem.name}</span></div>`
                     Array.isArray(citem.links) && citem.links.forEach(link => {
-                        let x = link.x < link.x1 ? link.x : link.x1
-                        let y = link.y < link.y1 ? link.y : link.y1
-                        let width = Math.abs(link.x - link.x1)
-                        let height = Math.abs(link.y - link.y1)
-                        let borderStr = ''
-                        if (link.x === link.x1) {
-                            borderStr = 'border-top-width: 1px'
+                        let extendWidth = 40
+                        let { data, mode } = searchRowAndColumn(link.to)
+                        let x, y, w, h
+                        let arrowType = ''
+                        if (item.mode === mode) { // 同一模块下，线条处理
+                            x = item.x + item.width / 2
+                            h = data.y - item.y - item.height
+                            if (item.line < data.line) {
+                                y = item.y + item.height
+                                arrowType = 'bottom'
+                            } else {
+                                y = data.y + data.height
+                                arrowType = 'top'
+                            }
+                        } else {
+                            if (item.line === data.line) { // 同高度下，线条处理
+                                y = item.y + item.height / 2
+                                if (item.mode < mode) {
+                                    x = item.x + item.width
+                                    w = data.x - item.x - item.width
+                                    arrowType = 'right'
+                                } else {
+                                    x = data.x + data.width
+                                    w = item.x - data.x - data.width
+                                    arrowType = 'left'
+                                }
+                            } else if (item.line < data.line) {
+                                w = data.x - item.x - item.width
+                                h = data.y - item.y - item.height + data.width / 2
+                                if (item.mode < mode) {
+                                    y = item.y + item.height / 2
+                                    x = item.x + item.width
+                                    arrowType = 'bottom'
+                                    if (link.direction === 'left') {
+                                        w += extendWidth
+                                        h += data.width / 2
+                                    } else if (link.direction === 'right') {
+                                        w -= data.width / 2
+                                        h += data.width / 2
+                                    } else if (link.direction === 'bottom') {
+                                        h += data.height + extendWidth
+                                    }
+                                } else {
+                                    y = item.y + item.height / 2
+                                    x = data.x + data.width
+                                    arrowType = 'left'
+                                    if (link.direction === 'top') {
+                                        x -= data.width / 2
+                                        w += data.width / 2
+                                        h -= data.width / 2
+                                    } else if (link.direction === 'left') {
+                                        x -= data.width
+                                        w += data.width
+                                    } else if (link.direction === 'bottom') {
+                                        x -= data.width / 2
+                                        w += data.width / 2
+                                        h += data.width / 2 + extendWidth
+                                    }
+                                }
+                            } else {
+                                w = item.x - data.x - data.width
+                                h = item.y - data.y - data.height + item.width / 2
+                                if (item.mode < mode) {
+                                    y = item.y + item.height / 2
+                                    x = item.x + item.width
+                                    arrowType = 'bottom'
+                                    if (link.direction === 'left') {
+                                        w += extendWidth
+                                        h += data.width / 2
+                                    } else if (link.direction === 'right') {
+                                        w -= data.width / 2
+                                        h += data.width / 2
+                                    } else if (link.direction === 'bottom') {
+                                        h += data.height + extendWidth
+                                    }
+                                } else {
+                                    y = item.y + item.height / 2
+                                    x = data.x + data.width
+                                    arrowType = 'left'
+                                    if (link.direction === 'top') {
+                                        x -= data.width / 2
+                                        w += data.width / 2
+                                        h -= data.width / 2
+                                    } else if (link.direction === 'left') {
+                                        x -= data.width
+                                        w += data.width
+                                    } else if (link.direction === 'bottom') {
+                                        x -= data.width / 2
+                                        w += data.width / 2
+                                        h += data.width / 2 + extendWidth
+                                    }
+                                }
+                            }
                         }
-                        if (link.y === link.y1) {
-                            borderStr = 'border-left-width: 1px'
-                        }
-                        
-                        let style = `top: ${x}px;left: ${y}px;width: ${width}px;height: ${height}px;`
-                        strProcess += `<div class="line-item" style="${style}"></div>`
+                        strProcess += `<div class="line-item"></div>`
                     })
                 })
             })
@@ -207,13 +302,13 @@
             strProcess += '</div>'
             $('#processBox').append(strModule + strProcess)
         }
-        
+
         function dealPosition() {
             let defaultBoxWidth = 200, splace = 20, lineHeight = 24, fontSize = 16
             let processBoxWidth = document.getElementById('processBox').getBoundingClientRect().width
             let moduleWidth = processBoxWidth / processList.length
             let boxWidth = moduleWidth > defaultBoxWidth + splace * 2 ? defaultBoxWidth : moduleWidth - splace * 2
-            
+
             // 设置模糊位置
             processList.forEach(item => {
                 item.list.forEach(citem => {
@@ -231,13 +326,13 @@
                     if (!citem.y) {
                         citem.y = citem.line === 1 ? 20 : citem.line * 60
                     }
-                    
+
                     adjustLinkPosition(item.mode, citem)
                 })
             })
             adjustLineCenter()
         }
-        
+
         // 调整每一行图形中心对齐
         function adjustLineCenter() {
             let lines = {}
@@ -274,55 +369,13 @@
                     }
                 })
                 processBoxHeights.push(Math.max(...allLine.map(item => item.y + item.height)))
-                
-                Array.isArray(item.links) && item.links.forEach(citem => {
-                    let temp = null, tempModule = -1, currModule = -1
-                    processList.forEach(module => {
-                        return module.list.forEach(process => {
-                            if (process.id === link.to) {
-                                temp = process
-                                tempModule = module.mode
-                            }
-                            if (process.id === item.id) {
-                                currModule = module.mode
-                            }
-                            return process.id === link.to
-                        })
-                    })
-                    if (!temp || tempModule === -1 || currModule === -1) return;
-                    if (tempModule < currModule) {
-                        citem.x = item.x
-                        citem.y = item.y + item.height / 2
-                        citem.x1 = temp.x + temp.width
-                        citem.y1 = temp.y
-                    } else if (tempModule === currModule) {
-                        citem.x = item.x + item.width / 2
-                        citem.y = item.y + item.height
-                        citem.x1 = temp.x + temp.width / 2
-                        citem.y1 = temp.y
-                    } else {
-                        citem.x = item.x + item.width
-                        citem.y = item.y + item.height / 2
-                        citem.x1 = temp.x
-                        citem.y1 = temp.y
-                    }
-                })
             })
             processBoxHeight = Math.max(...processBoxHeights)
         }
-        
+
         function adjustLinkPosition(currModule, currData) {
             Array.isArray(currData.links) && currData.links.forEach(link => {
-                let temp = null, tempModule = -1
-                processList.some(module => {
-                    return module.list.some(process => {
-                        if (process.id === link.to) {
-                            temp = process
-                            tempModule = module.mode
-                        }
-                        return process.id === link.to
-                    })
-                })
+                let { data: temp, mode: tempModule } = searchRowAndColumn(link.to)
                 if (!temp) return;
                 let changeY = 0
                 if (tempModule === currModule) {
@@ -339,18 +392,36 @@
                 }
             })
         }
-        
+
         function getWidthOfContent(fontSize, content) {
             let ctx = document.createElement('canvas').getContext("2d");
             ctx.font = `${fontSize}px PingFang SC`
             let text = ctx.measureText(content);
             return text.width;
         }
-        
-        $(function() {
+
+        function searchRowAndColumn(id) {
+            let data = null, mode = -1
+            processList.some(module => {
+                return module.list.some(process => {
+                    if (process.id === id) {
+                        data = process
+                        mode = module.mode
+                    }
+                    return process.id === id
+                })
+            })
+            return {
+                mode,
+                data
+            }
+        }
+
+        $(function () {
             dealPosition()
             drawProcess()
         })
     </script>
 </body>
+
 </html>
